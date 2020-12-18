@@ -47,18 +47,24 @@ def eval_equation(eq):
     if reducable(eq):
         eq = reduce_equation(eq)
     
-    # now solve
+    # now solve - but we're first looking for order of operations. + highest, * lowest
+    while "+" in eq:
+        
+        # find an addition op
+        pivot = eq.index("+")
+        left = pivot - 1
+        right = pivot + 1
+        
+        inserted = eq[left] + eq[right]
+        eq[left:right + 1] = [inserted]
+        
+    # standard reduce for multiplication
     carry = eq[0]
     
     for idx in range(1, len(eq), 2):
         op = eq[idx]
         right = eq[idx + 1]
-        # print("ca[%d] op[%s] ri[%s]" % (carry, op, right))
-        
-        if op == "+":
-            carry += right
-        elif op == "*":
-            carry *= right
+        carry *= right
     return carry
 
 
@@ -73,6 +79,8 @@ def reduce_equation(eq):
     # print("in reduce: ", eq)
     
     while reducable(eq):
+        
+        # parenthesis reduction
         st_idx = eq.index("(")
         ed_idx = None
         p_count = 1
